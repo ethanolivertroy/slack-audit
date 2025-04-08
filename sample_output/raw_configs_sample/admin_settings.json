@@ -1,0 +1,15 @@
+{
+  "who_can_create_channels": "ADMIN_ONLY",
+  "who_can_archive_channels": "ADMIN_ONLY",
+  "who_can_create_shared_channels": "EVERYONE",
+  "who_can_create_private_channels": "EVERYONE",
+  "who_can_delete_messages": "ADMIN_ONLY",
+  "who_can_edit_messages": "EVERYONE",
+  "who_can_invite_to_workspace": "ADMIN_ONLY",
+  "who_can_install_apps": "EVERYONE",
+  "app_directory_restrictions": {
+    "app_directory_enabled": false,
+    "restricted_apps_count": 3,
+    "allowed_apps_count": 12
+  }
+}

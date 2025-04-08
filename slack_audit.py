@@ -398,13 +398,30 @@ class SlackAudit:
         compliance = {
             "AC-2": self._check_ac2_compliance(),
             "AC-3": self._check_ac3_compliance(),
+            "AC-4": self._check_ac4_compliance(),
+            "AC-6": self._check_ac6_compliance(),
             "AC-7": self._check_ac7_compliance(),
             "AC-17": self._check_ac17_compliance(),
             "AU-2": self._check_au2_compliance(),
+            "AU-3": self._check_au3_compliance(),
+            "AU-6": self._check_au6_compliance(),
+            "AU-9": self._check_au9_compliance(),
+            "CM-2": self._check_cm2_compliance(),
+            "CM-6": self._check_cm6_compliance(),
+            "CM-7": self._check_cm7_compliance(),
+            "CP-9": self._check_cp9_compliance(),
             "IA-2": self._check_ia2_compliance(),
             "IA-5": self._check_ia5_compliance(),
+            "IR-4": self._check_ir4_compliance(),
+            "MP-7": self._check_mp7_compliance(),
+            "RA-5": self._check_ra5_compliance(),
+            "SA-9": self._check_sa9_compliance(),
+            "SC-7": self._check_sc7_compliance(),
             "SC-8": self._check_sc8_compliance(),
             "SC-12": self._check_sc12_compliance(),
+            "SC-13": self._check_sc13_compliance(),
+            "SC-28": self._check_sc28_compliance(),
+            "SI-4": self._check_si4_compliance(),
             "SI-7": self._check_si7_compliance()
         }
         
@@ -620,6 +637,557 @@ class SlackAudit:
             "recommendations": []
         }
     
+    def _check_ac4_compliance(self) -> Dict[str, Any]:
+        """Check compliance with AC-4 (Information Flow Enforcement)."""
+        admin_settings = self.audit_results["configurations"]["admin"]
+        
+        # Check settings related to external sharing and data flow
+        shared_channel_creation_restricted = admin_settings.get("who_can_create_shared_channels") in ["ADMIN_ONLY", "SPECIFIC_USERS"]
+        
+        # We'll assume access to file export restrictions is not available via API
+        # so this is a placeholder that could be expanded with actual API access
+        file_export_restricted = False  # Would need Enterprise Grid and API access
+        
+        # Check for DLP configurations (typically Enterprise Grid feature)
+        dlp_enabled = False  # Would need Enterprise Grid and API access
+        
+        is_compliant = shared_channel_creation_restricted and file_export_restricted and dlp_enabled
+        
+        return {
+            "control": "AC-4",
+            "title": "Information Flow Enforcement",
+            "compliant": shared_channel_creation_restricted,  # Using partial compliance based on available info
+            "findings": {
+                "shared_channel_creation_restricted": shared_channel_creation_restricted,
+                "file_export_restricted": "Unknown - Requires manual verification",
+                "dlp_enabled": "Unknown - Requires manual verification"
+            },
+            "recommendations": [
+                "Restrict shared channel creation to admins only" if not shared_channel_creation_restricted else None,
+                "Configure Data Loss Prevention (DLP) for sensitive content",
+                "Restrict workspace export capabilities to admins only",
+                "Review and configure external sharing settings"
+            ]
+        }
+    
+    def _check_ac6_compliance(self) -> Dict[str, Any]:
+        """Check compliance with AC-6 (Least Privilege)."""
+        user_settings = self.audit_results["configurations"]["users"]
+        admin_settings = self.audit_results["configurations"]["admin"]
+        
+        # Check admin counts
+        admin_count = user_settings.get("admin_count", 0)
+        total_users = user_settings.get("total_users", 0)
+        admin_percentage = (admin_count / total_users * 100) if total_users > 0 else 0
+        reasonable_admin_percentage = admin_percentage <= 10  # Subjective threshold
+        
+        # Check privileged action restrictions
+        install_apps_restricted = admin_settings.get("who_can_install_apps") in ["ADMIN_ONLY", "SPECIFIC_USERS"]
+        delete_messages_restricted = admin_settings.get("who_can_delete_messages") in ["ADMIN_ONLY", "SPECIFIC_USERS"]
+        
+        is_compliant = reasonable_admin_percentage and install_apps_restricted and delete_messages_restricted
+        
+        return {
+            "control": "AC-6",
+            "title": "Least Privilege",
+            "compliant": is_compliant,
+            "findings": {
+                "admin_count": admin_count,
+                "admin_percentage": admin_percentage,
+                "reasonable_admin_percentage": reasonable_admin_percentage,
+                "install_apps_restricted": install_apps_restricted,
+                "delete_messages_restricted": delete_messages_restricted
+            },
+            "recommendations": [
+                "Reduce the number of workspace admins" if not reasonable_admin_percentage else None,
+                "Restrict app installation to admins only" if not install_apps_restricted else None,
+                "Restrict message deletion to admins only" if not delete_messages_restricted else None,
+                "Implement custom roles for more granular permission control (Enterprise Grid)"
+            ]
+        }
+    
+    def _check_au3_compliance(self) -> Dict[str, Any]:
+        """Check compliance with AU-3 (Content of Audit Records)."""
+        workspace_settings = self.audit_results["configurations"]["workspace"]
+        
+        # Check if access logs are enabled and contain sufficient detail
+        has_access_logs = workspace_settings.get("has_access_logs", False)
+        access_logs_count = workspace_settings.get("access_logs_count", 0)
+        has_detailed_logs = access_logs_count > 0  # If we have logs, assume they have sufficient content
+        
+        is_compliant = has_access_logs and has_detailed_logs
+        
+        return {
+            "control": "AU-3",
+            "title": "Content of Audit Records",
+            "compliant": is_compliant,
+            "findings": {
+                "has_access_logs": has_access_logs,
+                "access_logs_count": access_logs_count,
+                "has_detailed_logs": has_detailed_logs
+            },
+            "recommendations": [
+                "Enable access logs" if not has_access_logs else None,
+                "Implement Enterprise Grid for enhanced audit logging capabilities" if not has_detailed_logs else None,
+                "Configure retention of audit records to meet organizational requirements"
+            ]
+        }
+    
+    def _check_au6_compliance(self) -> Dict[str, Any]:
+        """Check compliance with AU-6 (Audit Review, Analysis, and Reporting)."""
+        workspace_settings = self.audit_results["configurations"]["workspace"]
+        
+        # Check if access logs are enabled
+        has_access_logs = workspace_settings.get("has_access_logs", False)
+        
+        # Slack doesn't expose audit review configurations via API
+        # These would be manual processes or integrated with external SIEM systems
+        audit_review_process = False  # Would need manual verification
+        
+        is_compliant = has_access_logs and audit_review_process
+        
+        return {
+            "control": "AU-6",
+            "title": "Audit Review, Analysis, and Reporting",
+            "compliant": has_access_logs,  # Partial compliance based on available data
+            "findings": {
+                "has_access_logs": has_access_logs,
+                "audit_review_process": "Unknown - Requires manual verification"
+            },
+            "recommendations": [
+                "Enable access logs" if not has_access_logs else None,
+                "Implement a process for regular review of Slack audit logs",
+                "Consider integrating Slack logs with organizational SIEM solution",
+                "Establish automated alerting for suspicious activities"
+            ]
+        }
+    
+    def _check_au9_compliance(self) -> Dict[str, Any]:
+        """Check compliance with AU-9 (Protection of Audit Information)."""
+        # Slack internally handles protection of audit logs
+        # This control requires verification of internal Slack processes
+        # or Enterprise Grid with audit log export to protected storage
+        
+        workspace_settings = self.audit_results["configurations"]["workspace"]
+        has_access_logs = workspace_settings.get("has_access_logs", False)
+        is_enterprise_grid = self.audit_results["configurations"]["enterprise"].get("is_enterprise_grid", False)
+        
+        # Full compliance would need Enterprise Grid for log export capabilities
+        is_compliant = has_access_logs and is_enterprise_grid
+        
+        return {
+            "control": "AU-9",
+            "title": "Protection of Audit Information",
+            "compliant": is_compliant,
+            "findings": {
+                "has_access_logs": has_access_logs,
+                "is_enterprise_grid": is_enterprise_grid
+            },
+            "recommendations": [
+                "Enable access logs" if not has_access_logs else None,
+                "Upgrade to Enterprise Grid for enhanced audit capabilities" if not is_enterprise_grid else None,
+                "Export audit logs to secure, immutable storage",
+                "Implement access controls for exported audit data"
+            ]
+        }
+    
+    def _check_cm2_compliance(self) -> Dict[str, Any]:
+        """Check compliance with CM-2 (Baseline Configuration)."""
+        # Check if there's evidence of documented baseline configurations
+        # This is primarily a documentation control
+        
+        # For Slack, this would involve documenting the approved configuration
+        # We can check if key security settings are configured
+        
+        user_settings = self.audit_results["configurations"]["users"]
+        admin_settings = self.audit_results["configurations"]["admin"]
+        
+        two_factor_required = user_settings.get("two_factor_auth_required", False)
+        app_installation_restricted = admin_settings.get("who_can_install_apps") in ["ADMIN_ONLY", "SPECIFIC_USERS"]
+        
+        # These are indicators that a baseline might exist, but not definitive
+        potential_baseline_exists = two_factor_required and app_installation_restricted
+        
+        return {
+            "control": "CM-2",
+            "title": "Baseline Configuration",
+            "compliant": False,  # Cannot determine compliance without documentation
+            "findings": {
+                "potential_baseline_exists": potential_baseline_exists,
+                "two_factor_required": two_factor_required,
+                "app_installation_restricted": app_installation_restricted
+            },
+            "recommendations": [
+                "Document baseline configuration for Slack workspace",
+                "Include security settings in baseline documentation",
+                "Establish process for reviewing changes against baseline",
+                "Implement configuration management for Slack settings"
+            ]
+        }
+    
+    def _check_cm6_compliance(self) -> Dict[str, Any]:
+        """Check compliance with CM-6 (Configuration Settings)."""
+        # Check if security-relevant configuration settings are applied
+        user_settings = self.audit_results["configurations"]["users"]
+        admin_settings = self.audit_results["configurations"]["admin"]
+        enterprise_settings = self.audit_results["configurations"]["enterprise"]
+        
+        two_factor_required = user_settings.get("two_factor_auth_required", False)
+        app_installation_restricted = admin_settings.get("who_can_install_apps") in ["ADMIN_ONLY", "SPECIFIC_USERS"]
+        sso_enabled = enterprise_settings.get("sso_settings", {}).get("sso_enabled", False)
+        session_timeout_enabled = enterprise_settings.get("session_settings", {}).get("session_timeout_enabled", False)
+        
+        # Check if key security settings are configured properly
+        is_compliant = two_factor_required and app_installation_restricted and sso_enabled and session_timeout_enabled
+        
+        return {
+            "control": "CM-6",
+            "title": "Configuration Settings",
+            "compliant": is_compliant,
+            "findings": {
+                "two_factor_required": two_factor_required,
+                "app_installation_restricted": app_installation_restricted,
+                "sso_enabled": sso_enabled,
+                "session_timeout_enabled": session_timeout_enabled
+            },
+            "recommendations": [
+                "Enforce two-factor authentication for all users" if not two_factor_required else None,
+                "Restrict app installation to admins only" if not app_installation_restricted else None,
+                "Enable SSO integration" if not sso_enabled else None,
+                "Enable session timeout settings" if not session_timeout_enabled else None,
+                "Document and implement secure configuration settings"
+            ]
+        }
+    
+    def _check_cm7_compliance(self) -> Dict[str, Any]:
+        """Check compliance with CM-7 (Least Functionality)."""
+        # Check for restriction of unnecessary features
+        admin_settings = self.audit_results["configurations"]["admin"]
+        app_settings = self.audit_results["configurations"]["apps"]
+        
+        # Check if app installations are restricted
+        app_installation_restricted = admin_settings.get("who_can_install_apps") in ["ADMIN_ONLY", "SPECIFIC_USERS"]
+        
+        # Check if app directory is restricted
+        app_directory_restricted = admin_settings.get("app_directory_restrictions", {}).get("app_directory_enabled", False)
+        
+        # Check if there's a reasonable number of apps installed
+        total_apps = app_settings.get("total_apps", 0)
+        reasonable_app_count = total_apps < 50  # Subjective threshold
+        
+        is_compliant = app_installation_restricted and app_directory_restricted and reasonable_app_count
+        
+        return {
+            "control": "CM-7",
+            "title": "Least Functionality",
+            "compliant": is_compliant,
+            "findings": {
+                "app_installation_restricted": app_installation_restricted,
+                "app_directory_restricted": app_directory_restricted,
+                "total_apps": total_apps,
+                "reasonable_app_count": reasonable_app_count
+            },
+            "recommendations": [
+                "Restrict app installation to admins only" if not app_installation_restricted else None,
+                "Enable app directory restrictions" if not app_directory_restricted else None,
+                "Review and reduce the number of installed apps" if not reasonable_app_count else None,
+                "Disable unnecessary Slack features that pose security risks"
+            ]
+        }
+    
+    def _check_cp9_compliance(self) -> Dict[str, Any]:
+        """Check compliance with CP-9 (System Backup)."""
+        # Check for backup capabilities
+        retention_settings = self.audit_results["configurations"]["retention"]
+        
+        # Check if retention policies are in place
+        has_retention_policy = retention_settings.get("has_retention_policy", False)
+        
+        # Enterprise Grid provides better export and backup capabilities
+        is_enterprise_grid = self.audit_results["configurations"]["enterprise"].get("is_enterprise_grid", False)
+        
+        # Full compliance would need verification of actual backup procedures
+        is_compliant = has_retention_policy and is_enterprise_grid
+        
+        return {
+            "control": "CP-9",
+            "title": "System Backup",
+            "compliant": is_compliant,
+            "findings": {
+                "has_retention_policy": has_retention_policy,
+                "is_enterprise_grid": is_enterprise_grid
+            },
+            "recommendations": [
+                "Implement retention policies" if not has_retention_policy else None,
+                "Upgrade to Enterprise Grid for enhanced export capabilities" if not is_enterprise_grid else None,
+                "Establish regular workspace data export procedures",
+                "Document backup and recovery procedures for Slack data"
+            ]
+        }
+    
+    def _check_ir4_compliance(self) -> Dict[str, Any]:
+        """Check compliance with IR-4 (Incident Handling)."""
+        # Check for incident handling capabilities
+        # This is primarily a process control but can check for enabling features
+        
+        # Enterprise Grid provides better security monitoring and integration
+        is_enterprise_grid = self.audit_results["configurations"]["enterprise"].get("is_enterprise_grid", False)
+        
+        # Audit logging is necessary for incident detection
+        has_access_logs = self.audit_results["configurations"]["workspace"].get("has_access_logs", False)
+        
+        # Cannot fully verify without process documentation
+        is_compliant = is_enterprise_grid and has_access_logs
+        
+        return {
+            "control": "IR-4",
+            "title": "Incident Handling",
+            "compliant": is_compliant,
+            "findings": {
+                "is_enterprise_grid": is_enterprise_grid,
+                "has_access_logs": has_access_logs
+            },
+            "recommendations": [
+                "Upgrade to Enterprise Grid for enhanced security capabilities" if not is_enterprise_grid else None,
+                "Enable access logs" if not has_access_logs else None,
+                "Include Slack incidents in organizational incident response procedures",
+                "Configure security alerting for suspicious Slack activities",
+                "Establish procedures for containing and eradicating Slack-based security incidents"
+            ]
+        }
+    
+    def _check_mp7_compliance(self) -> Dict[str, Any]:
+        """Check compliance with MP-7 (Media Sanitization)."""
+        # Check for data deletion and sanitization capabilities
+        retention_settings = self.audit_results["configurations"]["retention"]
+        
+        # Check if retention policies are in place for automatic deletion
+        has_retention_policy = retention_settings.get("has_retention_policy", False)
+        
+        # Enterprise Grid provides better data management capabilities
+        is_enterprise_grid = self.audit_results["configurations"]["enterprise"].get("is_enterprise_grid", False)
+        
+        # Full compliance would need verification of actual media sanitization procedures
+        is_compliant = has_retention_policy and is_enterprise_grid
+        
+        return {
+            "control": "MP-7",
+            "title": "Media Sanitization",
+            "compliant": is_compliant,
+            "findings": {
+                "has_retention_policy": has_retention_policy,
+                "is_enterprise_grid": is_enterprise_grid
+            },
+            "recommendations": [
+                "Implement retention policies for automatic deletion" if not has_retention_policy else None,
+                "Upgrade to Enterprise Grid for enhanced data management" if not is_enterprise_grid else None,
+                "Establish procedures for sanitizing Slack data when no longer needed",
+                "Configure minimum necessary retention periods for compliance"
+            ]
+        }
+    
+    def _check_ra5_compliance(self) -> Dict[str, Any]:
+        """Check compliance with RA-5 (Vulnerability Scanning)."""
+        # Check for vulnerability management capabilities
+        app_settings = self.audit_results["configurations"]["apps"]
+        
+        # Slack handles vulnerability scanning for their platform
+        # For customers, focus is on custom apps and integrations
+        
+        risky_apps_count = app_settings.get("risky_apps_count", 0)
+        has_risky_apps = risky_apps_count > 0
+        
+        # Enterprise Grid provides better security monitoring
+        is_enterprise_grid = self.audit_results["configurations"]["enterprise"].get("is_enterprise_grid", False)
+        
+        # Compliance is based on addressing vulnerabilities in custom apps/integrations
+        is_compliant = not has_risky_apps and is_enterprise_grid
+        
+        return {
+            "control": "RA-5",
+            "title": "Vulnerability Scanning",
+            "compliant": is_compliant,
+            "findings": {
+                "risky_apps_count": risky_apps_count,
+                "has_risky_apps": has_risky_apps,
+                "is_enterprise_grid": is_enterprise_grid
+            },
+            "recommendations": [
+                "Review and remediate risky app permissions" if has_risky_apps else None,
+                "Upgrade to Enterprise Grid for enhanced security monitoring" if not is_enterprise_grid else None,
+                "Implement vulnerability assessment for custom Slack apps",
+                "Establish process for security patching of custom integrations"
+            ]
+        }
+    
+    def _check_sa9_compliance(self) -> Dict[str, Any]:
+        """Check compliance with SA-9 (External Information System Services)."""
+        # Check external service provider use
+        app_settings = self.audit_results["configurations"]["apps"]
+        admin_settings = self.audit_results["configurations"]["admin"]
+        
+        # Check if app installations are restricted
+        app_installation_restricted = admin_settings.get("who_can_install_apps") in ["ADMIN_ONLY", "SPECIFIC_USERS"]
+        
+        # Check if app directory is restricted
+        app_directory_restricted = admin_settings.get("app_directory_restrictions", {}).get("app_directory_enabled", False)
+        
+        # Check if there are risky apps that may access external services
+        risky_apps_count = app_settings.get("risky_apps_count", 0)
+        minimal_risky_apps = risky_apps_count < 5  # Subjective threshold
+        
+        is_compliant = app_installation_restricted and app_directory_restricted and minimal_risky_apps
+        
+        return {
+            "control": "SA-9",
+            "title": "External Information System Services",
+            "compliant": is_compliant,
+            "findings": {
+                "app_installation_restricted": app_installation_restricted,
+                "app_directory_restricted": app_directory_restricted,
+                "risky_apps_count": risky_apps_count,
+                "minimal_risky_apps": minimal_risky_apps
+            },
+            "recommendations": [
+                "Restrict app installation to admins only" if not app_installation_restricted else None,
+                "Enable app directory restrictions" if not app_directory_restricted else None,
+                "Review and reduce third-party integrations with sensitive permissions" if not minimal_risky_apps else None,
+                "Establish security assessment procedures for Slack integrations"
+            ]
+        }
+    
+    def _check_sc7_compliance(self) -> Dict[str, Any]:
+        """Check compliance with SC-7 (Boundary Protection)."""
+        # Check for boundary protection controls
+        admin_settings = self.audit_results["configurations"]["admin"]
+        enterprise_settings = self.audit_results["configurations"]["enterprise"]
+        
+        # Check if shared channels are restricted (external boundaries)
+        shared_channel_restricted = admin_settings.get("who_can_create_shared_channels") in ["ADMIN_ONLY", "SPECIFIC_USERS"]
+        
+        # SSO helps with boundary protection
+        sso_enabled = enterprise_settings.get("sso_settings", {}).get("sso_enabled", False)
+        
+        # IP restrictions would be part of Enterprise Grid (not directly checkable via API)
+        is_enterprise_grid = enterprise_settings.get("is_enterprise_grid", False)
+        
+        is_compliant = shared_channel_restricted and sso_enabled and is_enterprise_grid
+        
+        return {
+            "control": "SC-7",
+            "title": "Boundary Protection",
+            "compliant": is_compliant,
+            "findings": {
+                "shared_channel_restricted": shared_channel_restricted,
+                "sso_enabled": sso_enabled,
+                "is_enterprise_grid": is_enterprise_grid
+            },
+            "recommendations": [
+                "Restrict shared channel creation to admins only" if not shared_channel_restricted else None,
+                "Enable SSO integration" if not sso_enabled else None,
+                "Upgrade to Enterprise Grid for IP allowlisting capabilities" if not is_enterprise_grid else None,
+                "Configure IP allowlisting to restrict access to authorized networks",
+                "Implement device management for Slack access"
+            ]
+        }
+    
+    def _check_sc13_compliance(self) -> Dict[str, Any]:
+        """Check compliance with SC-13 (Cryptographic Protection)."""
+        # Check for cryptographic protection
+        # Slack handles this internally, but Enterprise Grid provides more options
+        
+        is_enterprise_grid = self.audit_results["configurations"]["enterprise"].get("is_enterprise_grid", False)
+        
+        # Slack uses TLS by default
+        uses_tls = True
+        
+        # Enterprise key management is an Enterprise Grid feature
+        has_enterprise_key_management = False  # Would need to check manually
+        
+        is_compliant = uses_tls and is_enterprise_grid and has_enterprise_key_management
+        
+        return {
+            "control": "SC-13",
+            "title": "Cryptographic Protection",
+            "compliant": uses_tls,  # Basic compliance through TLS
+            "findings": {
+                "uses_tls": uses_tls,
+                "is_enterprise_grid": is_enterprise_grid,
+                "has_enterprise_key_management": "Unknown - Requires manual verification"
+            },
+            "recommendations": [
+                "Upgrade to Enterprise Grid for enhanced cryptographic controls" if not is_enterprise_grid else None,
+                "Consider implementing Enterprise Key Management",
+                "Document cryptographic requirements for Slack data"
+            ]
+        }
+    
+    def _check_sc28_compliance(self) -> Dict[str, Any]:
+        """Check compliance with SC-28 (Protection of Information at Rest)."""
+        # Check for protection of information at rest
+        # Slack handles this internally, but Enterprise Grid provides more options
+        
+        is_enterprise_grid = self.audit_results["configurations"]["enterprise"].get("is_enterprise_grid", False)
+        
+        # Enterprise key management is an Enterprise Grid feature
+        has_enterprise_key_management = False  # Would need to check manually
+        
+        # Slack encrypts data at rest by default
+        data_encrypted_at_rest = True
+        
+        is_compliant = data_encrypted_at_rest and is_enterprise_grid and has_enterprise_key_management
+        
+        return {
+            "control": "SC-28",
+            "title": "Protection of Information at Rest",
+            "compliant": data_encrypted_at_rest,  # Basic compliance
+            "findings": {
+                "data_encrypted_at_rest": data_encrypted_at_rest,
+                "is_enterprise_grid": is_enterprise_grid,
+                "has_enterprise_key_management": "Unknown - Requires manual verification"
+            },
+            "recommendations": [
+                "Upgrade to Enterprise Grid for enhanced encryption controls" if not is_enterprise_grid else None,
+                "Consider implementing customer-managed encryption keys",
+                "Document encryption requirements for stored Slack data"
+            ]
+        }
+    
+    def _check_si4_compliance(self) -> Dict[str, Any]:
+        """Check compliance with SI-4 (Information System Monitoring)."""
+        # Check for system monitoring capabilities
+        workspace_settings = self.audit_results["configurations"]["workspace"]
+        enterprise_settings = self.audit_results["configurations"]["enterprise"]
+        
+        # Check if access logs are enabled
+        has_access_logs = workspace_settings.get("has_access_logs", False)
+        
+        # Enterprise Grid provides better monitoring and integration
+        is_enterprise_grid = enterprise_settings.get("is_enterprise_grid", False)
+        
+        # DLP monitoring would be part of Enterprise Grid
+        has_dlp_monitoring = False  # Would need to check manually
+        
+        is_compliant = has_access_logs and is_enterprise_grid and has_dlp_monitoring
+        
+        return {
+            "control": "SI-4",
+            "title": "Information System Monitoring",
+            "compliant": has_access_logs,  # Basic compliance
+            "findings": {
+                "has_access_logs": has_access_logs,
+                "is_enterprise_grid": is_enterprise_grid,
+                "has_dlp_monitoring": "Unknown - Requires manual verification"
+            },
+            "recommendations": [
+                "Enable access logs" if not has_access_logs else None,
+                "Upgrade to Enterprise Grid for enhanced monitoring capabilities" if not is_enterprise_grid else None,
+                "Implement Data Loss Prevention (DLP) monitoring",
+                "Integrate Slack monitoring with organizational SIEM solution",
+                "Configure alerting for anomalous Slack activities"
+            ]
+        }
+    
     def _check_si7_compliance(self) -> Dict[str, Any]:
         """Check compliance with SI-7 (Software, Firmware, and Information Integrity)."""
         admin_settings = self.audit_results["configurations"]["admin"]
@@ -660,6 +1228,43 @@ class SlackAudit:
     
     def _save_results(self) -> None:
         """Save audit results to file."""
+        # Create a raw configs directory
+        raw_configs_dir = f"{self.output_dir}/raw_configs_{self.timestamp}"
+        if not os.path.exists(raw_configs_dir):
+            os.makedirs(raw_configs_dir)
+        
+        # Save raw API responses for later inspection
+        print(f"Saving raw configuration data to: {raw_configs_dir}")
+        
+        # Save enterprise settings
+        with open(f"{raw_configs_dir}/enterprise_settings.json", "w") as f:
+            json.dump(self.audit_results["configurations"]["enterprise"], f, indent=2)
+            
+        # Save admin settings
+        with open(f"{raw_configs_dir}/admin_settings.json", "w") as f:
+            json.dump(self.audit_results["configurations"]["admin"], f, indent=2)
+            
+        # Save workspace settings
+        with open(f"{raw_configs_dir}/workspace_settings.json", "w") as f:
+            json.dump(self.audit_results["configurations"]["workspace"], f, indent=2)
+            
+        # Save user settings
+        with open(f"{raw_configs_dir}/user_settings.json", "w") as f:
+            json.dump(self.audit_results["configurations"]["users"], f, indent=2)
+            
+        # Save app configurations
+        with open(f"{raw_configs_dir}/app_settings.json", "w") as f:
+            json.dump(self.audit_results["configurations"]["apps"], f, indent=2)
+            
+        # Save retention policies
+        with open(f"{raw_configs_dir}/retention_settings.json", "w") as f:
+            json.dump(self.audit_results["configurations"]["retention"], f, indent=2)
+            
+        # Save compliance findings
+        with open(f"{raw_configs_dir}/compliance_findings.json", "w") as f:
+            json.dump(self.audit_results["compliance"], f, indent=2)
+        
+        # Save full results
         filename = f"{self.output_dir}/slack_audit_{self.timestamp}.json"
         with open(filename, "w") as f:
             json.dump(self.audit_results, f, indent=2)

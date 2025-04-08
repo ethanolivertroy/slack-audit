@@ -1,0 +1,25 @@
+{
+  "is_enterprise_grid": true,
+  "enterprise_id": "E012ABCDEFG",
+  "enterprise_name": "Example Org",
+  "domains": [
+    {
+      "domain": "example.org",
+      "is_verified": true
+    },
+    {
+      "domain": "example-org.com",
+      "is_verified": true
+    }
+  ],
+  "sso_settings": {
+    "sso_enabled": false,
+    "sso_provider": null,
+    "session_duration": 43200
+  },
+  "session_settings": {
+    "session_timeout_enabled": true,
+    "session_duration_hours": 24,
+    "mobile_session_duration_hours": 72
+  }
+}

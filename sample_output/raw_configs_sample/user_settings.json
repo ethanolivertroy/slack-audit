@@ -1,0 +1,9 @@
+{
+  "total_users": 125,
+  "admin_count": 8,
+  "owner_count": 2,
+  "bot_count": 15,
+  "two_factor_auth_required": false,
+  "two_factor_enabled_count": 50,
+  "two_factor_enabled_percentage": 45.5
+}

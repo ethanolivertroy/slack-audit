@@ -1,0 +1,56 @@
+{
+  "total_apps": 28,
+  "app_categories": {
+    "Productivity": 10,
+    "Communication": 5,
+    "Developer Tools": 7,
+    "Analytics": 3,
+    "Other": 3
+  },
+  "risky_apps_count": 5,
+  "risky_apps": [
+    {
+      "id": "A012ABCDEFG",
+      "name": "Custom Integration 1",
+      "scopes": [
+        "channels:history",
+        "files:read",
+        "users:read"
+      ]
+    },
+    {
+      "id": "A013HIJKLMN",
+      "name": "Data Export Tool",
+      "scopes": [
+        "channels:history",
+        "channels:read",
+        "files:read",
+        "users:read"
+      ]
+    },
+    {
+      "id": "A014OPQRSTU",
+      "name": "Message Manager",
+      "scopes": [
+        "chat:write",
+        "im:history",
+        "im:write"
+      ]
+    },
+    {
+      "id": "A015VWXYZAB",
+      "name": "User Directory",
+      "scopes": [
+        "users:read",
+        "users:write"
+      ]
+    },
+    {
+      "id": "A016CDEFGHI",
+      "name": "Admin Helper",
+      "scopes": [
+        "admin"
+      ]
+    }
+  ]
+}

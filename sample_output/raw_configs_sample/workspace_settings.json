@@ -1,0 +1,17 @@
+{
+  "team_id": "T012ABCDEFG",
+  "team_name": "Example Org",
+  "team_domain": "example-org",
+  "email_domain": "example.org",
+  "workspace_creation_date": 1596215422,
+  "has_access_logs": true,
+  "access_logs_count": 245,
+  "default_channels": [
+    {
+      "id": "C012ABCDEFG",
+      "name": "general",
+      "is_general": true,
+      "created": 1596215422
+    }
+  ]
+}

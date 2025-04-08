@@ -1,0 +1,5 @@
+{
+  "has_retention_policy": true,
+  "retention_duration_days": 90,
+  "default_policy": "delete"
+}

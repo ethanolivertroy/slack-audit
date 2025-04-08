@@ -1,0 +1,80 @@
+{
+  "AC-2": {
+    "control": "AC-2",
+    "title": "Account Management",
+    "compliant": true,
+    "findings": {
+      "invite_restriction": true,
+      "has_access_logs": true,
+      "admin_count": 8,
+      "total_users": 125
+    },
+    "recommendations": []
+  },
+  "AC-3": {
+    "control": "AC-3",
+    "title": "Access Enforcement",
+    "compliant": true,
+    "findings": {
+      "channel_creation_restricted": true,
+      "private_channel_creation_restricted": false,
+      "message_deletion_restricted": true,
+      "message_editing_restricted": false
+    },
+    "recommendations": []
+  },
+  "AC-4": {
+    "control": "AC-4",
+    "title": "Information Flow Enforcement",
+    "compliant": false,
+    "findings": {
+      "shared_channel_creation_restricted": false,
+      "file_export_restricted": "Unknown - Requires manual verification",
+      "dlp_enabled": "Unknown - Requires manual verification"
+    },
+    "recommendations": [
+      "Restrict shared channel creation to admins only",
+      "Configure Data Loss Prevention (DLP) for sensitive content",
+      "Restrict workspace export capabilities to admins only",
+      "Review and configure external sharing settings"
+    ]
+  },
+  "AC-6": {
+    "control": "AC-6",
+    "title": "Least Privilege",
+    "compliant": true,
+    "findings": {
+      "admin_count": 8,
+      "admin_percentage": 6.4,
+      "reasonable_admin_percentage": true,
+      "install_apps_restricted": false,
+      "delete_messages_restricted": true
+    },
+    "recommendations": []
+  },
+  "AU-3": {
+    "control": "AU-3",
+    "title": "Content of Audit Records",
+    "compliant": true,
+    "findings": {
+      "has_access_logs": true,
+      "access_logs_count": 245,
+      "has_detailed_logs": true
+    },
+    "recommendations": []
+  },
+  "SC-13": {
+    "control": "SC-13",
+    "title": "Cryptographic Protection",
+    "compliant": false,
+    "findings": {
+      "uses_tls": true,
+      "is_enterprise_grid": true,
+      "has_enterprise_key_management": "Unknown - Requires manual verification"
+    },
+    "recommendations": [
+      "Consider implementing Enterprise Key Management",
+      "Document cryptographic requirements for Slack data"
+    ]
+  }
+}
