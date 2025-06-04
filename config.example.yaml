@@ -1,0 +1,64 @@
+# Example configuration file for Slack Security Audit Tool
+# Copy this to config.yaml and customize as needed
+
+mode: point_in_time  # or "continuous" (not yet implemented)
+
+# Compliance frameworks to assess
+frameworks:
+  - name: nist_800_53
+    version: "5"
+    profile: high  # Options: low, moderate, high
+  - name: fedramp
+    profile: moderate
+  - name: cis
+    version: "1.1"
+  # - name: iso_27001  # Uncomment to enable
+
+# CIA triad weights (must sum to 1.0)
+cia_weights:
+  confidentiality: 0.4
+  integrity: 0.3
+  availability: 0.3
+
+# Scanning configuration
+scanning:
+  deep_scan: true
+  scan_files: true
+  scan_messages: false  # Disabled for privacy
+  scan_private_channels: false
+  parallel_requests: 10
+  request_timeout: 30
+  rate_limit_delay: 0.5
+
+# Report generation
+reporting:
+  formats:
+    - json
+    - html
+    - markdown
+    # - csv  # Uncomment to enable
+  include_evidence: true
+  include_raw_data: false
+  executive_summary: true
+  technical_details: true
+  remediation_guidance: true
+  risk_matrix: true
+
+# Risk scoring thresholds
+risk_thresholds:
+  critical: 9.0
+  high: 7.0
+  medium: 4.0
+  low: 2.0
+
+# Advanced features (optional)
+enable_dlp: false
+enable_behavioral_analytics: false
+enable_threat_detection: false
+
+# Integration settings (optional)
+# integrations:
+#   siem:
+#     type: splunk
+#     endpoint: https://splunk.example.com
+#     token: ${SPLUNK_TOKEN}

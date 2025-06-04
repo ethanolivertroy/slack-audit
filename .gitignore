@@ -1,0 +1,49 @@
+# Local files
+*.local.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Audit outputs
+audit_results/
+*.log
+
+# Sensitive data
+*.token
+*.key
+config.local.yaml
+config.local.json
+
+# Test coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.pytest_cache/
+
+# Distribution
+build/
+dist/
+*.egg-info/

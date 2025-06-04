@@ -1,229 +1,280 @@
-# Slack FedRAMP Compliance Audit Tool
+# Slack Security Audit Tool
 
-A tool to help organizations audit their Slack workspaces for FedRAMP compliance and gather evidence for NIST 800-53 controls.
-
-## Overview
-
-This tool connects to your Slack workspace via the Slack API and audits various security configurations relevant to FedRAMP compliance and NIST 800-53 controls. It helps organizations:
-
-- Assess their current Slack configuration against FedRAMP requirements
-- Generate evidence for NIST 800-53 security controls 
-- Identify compliance gaps and receive recommendations for remediation
-- Create documentation for auditors and compliance reviews
-
-For a comprehensive manual evaluation approach, see the included [Slack FedRAMP and NIST 800-53 Compliance Evaluation Guide](SLACK_EVALUATION_GUIDE.md).
-
-## Quick Start Guide
-
-The tool is available in two versions:
-- A Python script (`slack_audit.py`)
-- A Bash script (`slack_audit.sh`) for users who can't run Python
-
-### Python Version Setup
-
-1. Ensure you have Python 3.6+ installed:
-   ```
-   python --version
-   ```
-
-2. Clone this repository and install dependencies:
-   ```
-   git clone https://github.com/your-org/slack-audit.git
-   cd slack-audit
-   pip install -r requirements.txt
-   ```
-
-### Bash Version Setup
-
-1. Ensure you have `bash` and `jq` installed:
-   ```
-   bash --version
-   jq --version
-   ```
-
-2. If `jq` is not installed, install it using your package manager:
-   ```
-   # Ubuntu/Debian
-   sudo apt-get install jq
-   
-   # CentOS/RHEL
-   sudo yum install jq
-   
-   # macOS
-   brew install jq
-   ```
-
-3. Make the script executable:
-   ```
-   chmod +x slack_audit.sh
-   ```
-
-3. Get a Slack API token with admin privileges:
-   - Go to [Slack API Apps](https://api.slack.com/apps)
-   - Click "Create New App" → "From scratch"
-   - Name your app (e.g., "Compliance Audit") and select your workspace
-   - Navigate to "OAuth & Permissions"
-   - Add the following OAuth scopes:
-     - `admin`
-     - `admin.teams:read`
-     - `admin.users:read`
-     - `channels:read`
-     - `groups:read`
-     - `im:read`
-     - `mpim:read`
-     - `team:read`
-     - `users:read`
-     - `files:read`
-     - `apps:read`
-   - Install the app to your workspace
-   - Copy the OAuth User Token (starts with `xoxp-`)
-
-   Note: For Enterprise Grid workspaces, you may need additional admin permissions.
-
-### Running the Audit
-
-#### Using the Python Version
-
-Run the audit with your Slack API token:
-
-```
-python slack_audit.py --token xoxp-your-slack-api-token
-```
-
-By default, results are stored in the `./audit_results` directory. You can specify a different output directory:
-
-```
-python slack_audit.py --token xoxp-your-slack-api-token --output-dir /path/to/output
-```
-
-#### Using the Bash Version
-
-Run the audit with your Slack API token:
-
-```
-./slack_audit.sh --token xoxp-your-slack-api-token
-```
-
-You can also specify a different output directory:
-
-```
-./slack_audit.sh --token xoxp-your-slack-api-token --output-dir /path/to/output
-```
-
-Both versions produce the same output formats and follow the same audit process.
-
-### Understanding Results
-
-After running the audit, the following outputs will be generated in the output directory:
-
-1. `slack_audit_TIMESTAMP.json` - Detailed JSON with all findings
-2. `slack_audit_summary_TIMESTAMP.md` - Human-readable summary report
-3. `raw_configs_TIMESTAMP/` - Directory containing raw configuration files:
-   - `enterprise_settings.json` - Enterprise Grid details, domains, and SSO configuration
-   - `admin_settings.json` - Admin permissions and restriction settings
-   - `workspace_settings.json` - Workspace metadata and channel information
-   - `user_settings.json` - User counts, admin stats, and 2FA details
-   - `app_settings.json` - Installed app information with permissions
-   - `retention_settings.json` - Data retention policies
-   - `compliance_findings.json` - Detailed compliance assessments per control
-
-The summary report contains:
-- Workspace information
-- Compliance score and status
-- Detailed findings for each NIST 800-53 control
-- Recommendations for improving compliance
-
-The raw configuration files preserve the detailed API responses for later inspection, evidence gathering, and more detailed analysis.
-
-See the [sample_output/](sample_output/) directory for example reports and raw configuration files.
-
-### Common Issues
-
-1. **Token Permission Errors**:
-   - Ensure your token has all required scopes
-   - If using Enterprise Grid, ensure the token has enterprise-wide permissions
-
-2. **API Rate Limiting**:
-   - The tool respects Slack's API rate limits, but if you encounter rate limiting errors, wait a few minutes and try again
-
-3. **Missing Enterprise Settings**:
-   - Some settings only apply to Enterprise Grid workspaces
-   - The tool will indicate if certain features could not be audited
+A comprehensive security assessment platform for Slack workspaces that evaluates compliance with industry-wide security best practices, FedRAMP requirements, and NIST 800-53 controls with explicit CIA triad impact analysis.
 
 ## Features
 
-The tool performs comprehensive auditing of:
+- **Multi-Framework Compliance**: Assess against NIST 800-53 Rev 5, FedRAMP, CIS Slack Benchmark, and ISO 27001
+- **CIA Triad Analysis**: Every finding and control mapped to Confidentiality, Integrity, and Availability impacts
+- **Risk-Based Scoring**: Advanced risk scoring engine considering severity, exploitability, and CIA impacts
+- **Comprehensive Coverage**: 150+ security controls across multiple compliance frameworks
+- **Point-in-Time Auditing**: Detailed snapshot assessments for compliance audits
+- **Multiple Report Formats**: JSON, HTML, Markdown, and CSV outputs
+- **Evidence Collection**: Raw configuration exports for audit documentation
+- **Modular Architecture**: Extensible framework for adding new compliance standards
 
-- Enterprise and workspace settings
-- Admin configurations and permissions
-- User authentication settings (2FA, SSO)
-- App integration security
-- Data retention policies
-- Message and file sharing controls
-- Audit logging capabilities
-- And more
+## Quick Start
 
-### Next Steps After Audit
+### Installation
 
-1. Review the summary report to identify compliance gaps
-2. Implement the recommended changes in your Slack workspace
-3. Re-run the audit to verify improvements
-4. Keep the reports as evidence for your FedRAMP audit
+```bash
+# Clone the repository
+git clone https://github.com/ethanolivertroy/slack-audit.git
+cd slack-audit
 
-## FedRAMP Compliance
+# Install dependencies
+pip install -r requirements.txt
 
-This tool helps organizations gather evidence for FedRAMP compliance by:
+# Make the script executable
+chmod +x slack_security_audit_cli.py
+```
 
-1. Identifying configuration gaps that may impact FedRAMP compliance
-2. Providing documentation for auditors on Slack security settings
-3. Mapping Slack configurations to relevant NIST 800-53 controls
-4. Suggesting remediation steps to improve compliance posture
+### Basic Usage
 
-## NIST 800-53 Controls
+```bash
+# Run a comprehensive audit with default settings
+./slack_security_audit_cli.py --token xoxb-your-slack-token
 
-The tool evaluates compliance with 27 NIST 800-53 controls:
+# Run audit for specific frameworks
+./slack_security_audit_cli.py --token xoxb-your-slack-token --frameworks nist_800_53 cis
 
-| Control | Title | What We Check |
-|---------|-------|---------------|
-| AC-2 | Account Management | User invitation restrictions, access logs |
-| AC-3 | Access Enforcement | Channel creation/management restrictions |
-| AC-4 | Information Flow Enforcement | Shared channels, DLP settings, external sharing |
-| AC-6 | Least Privilege | Admin role distribution, privileged actions |
-| AC-7 | Unsuccessful Login Attempts | Slack's built-in account lockout |
-| AC-17 | Remote Access | SSO configuration, session timeout settings |
-| AU-2 | Audit Events | Access logging capabilities |
-| AU-3 | Content of Audit Records | Log detail, recorded information |
-| AU-6 | Audit Review | Log analysis and reporting mechanisms |
-| AU-9 | Protection of Audit Information | Log access control, export protection |
-| CM-2 | Baseline Configuration | Documentation of approved settings |
-| CM-6 | Configuration Settings | Implementation of security settings |
-| CM-7 | Least Functionality | Restriction of unnecessary features |
-| CP-9 | System Backup | Data export and recovery capabilities |
-| IA-2 | Identification and Authentication | 2FA enforcement, SSO implementation |
-| IA-5 | Authenticator Management | 2FA enforcement, password policies |
-| IR-4 | Incident Handling | Incident response procedures, capabilities |
-| MP-7 | Media Sanitization | Data deletion, retention policies |
-| RA-5 | Vulnerability Scanning | App security assessment |
-| SA-9 | External Information System Services | Third-party app security |
-| SC-7 | Boundary Protection | IP restrictions, domain controls |
-| SC-8 | Transmission Confidentiality and Integrity | TLS implementation |
-| SC-12 | Cryptographic Key Management | Encryption key handling |
-| SC-13 | Cryptographic Protection | Encryption algorithms, FIPS compliance |
-| SC-28 | Protection of Information at Rest | Data encryption methods |
-| SI-4 | Information System Monitoring | Security monitoring, alerting |
-| SI-7 | Software, Firmware, and Information Integrity | App installation restrictions |
+# Use a configuration file
+./slack_security_audit_cli.py --token xoxb-your-slack-token --config audit_config.yaml
 
-## Limitations
+# Customize CIA weights (must sum to 1.0)
+./slack_security_audit_cli.py --token xoxb-your-slack-token --cia-weights 0.5 0.3 0.2
+```
 
-- The tool relies on the Slack API, which may change over time
-- Some settings may not be accessible via the API and require manual verification
-- FedRAMP requirements evolve, and this tool should be used as a supplementary aid, not a complete compliance solution
-- Enterprise Grid workspaces may have additional settings not covered by this tool
+## Configuration
+
+Create a `config.yaml` file for advanced configuration:
+
+```yaml
+mode: point_in_time
+frameworks:
+  - name: nist_800_53
+    version: "5"
+    profile: high
+  - name: fedramp
+    profile: moderate
+  - name: cis
+    version: "1.1"
+
+cia_weights:
+  confidentiality: 0.4
+  integrity: 0.3
+  availability: 0.3
+
+scanning:
+  deep_scan: true
+  scan_files: true
+  scan_messages: false  # Privacy consideration
+
+reporting:
+  formats: ["json", "html", "markdown"]
+  include_evidence: true
+  executive_summary: true
+```
+
+## Required Slack Permissions
+
+Create a Slack app with the following OAuth scopes:
+- `admin` - Admin-level access
+- `admin.teams:read` - Read team information
+- `admin.users:read` - Read user information
+- `admin.conversations:read` - Read conversation settings
+- `admin.apps:read` - Read app configurations
+- `channels:read` - View public channels
+- `groups:read` - View private channels
+- `users:read` - View users
+- `team:read` - View team info
+- `files:read` - View files
+- `audit:read` - Read audit logs (Enterprise Grid)
+
+## Output Structure
+
+```
+audit_results/
+├── audit_<timestamp>/
+│   ├── audit_report_<id>.json       # Complete audit results
+│   ├── audit_report_<id>.html       # Executive summary
+│   ├── audit_report_<id>.md         # Detailed findings
+│   ├── nist_800_53_results.json     # Framework-specific results
+│   ├── fedramp_results.json
+│   ├── cis_results.json
+│   ├── findings_<id>.csv            # Findings export
+│   └── controls_<id>.csv            # Control results export
+```
+
+## CIA Triad Analysis
+
+The tool evaluates every security control and finding for its impact on:
+
+- **Confidentiality**: Protection of sensitive information from unauthorized access
+- **Integrity**: Ensuring data accuracy and preventing unauthorized modifications
+- **Availability**: Maintaining accessibility of systems and data when needed
+
+Risk scores are adjusted based on CIA impacts and organizational priorities.
+
+## Compliance Frameworks
+
+### NIST 800-53 Rev 5
+- 150+ controls across all security families
+- Mapped to FedRAMP baselines (Low, Moderate, High)
+- Full CIA triad impact assessment
+
+### CIS Slack Benchmark
+- Identity and Access Management
+- Data Protection
+- Application Security
+- Logging and Monitoring
+- Network Security
+
+### ISO 27001
+- Annex A control mappings
+- Information security management focus
+
+## Risk Scoring
+
+The platform uses a sophisticated risk scoring algorithm:
+
+```
+Risk Score = (Base Severity × 0.4) + 
+             (Exploitability × 0.3) + 
+             (CIA Impact × 0.2) + 
+             (Regulatory Impact × 0.1)
+```
+
+Scores range from 0-10:
+- **Critical**: 9.0-10.0
+- **High**: 7.0-8.9
+- **Medium**: 4.0-6.9
+- **Low**: 2.0-3.9
+- **Info**: 0.0-1.9
+
+## Advanced Features
+
+### Custom Control Selection
+```bash
+# Only test specific controls
+./slack_security_audit_cli.py --token $TOKEN --config custom_controls.yaml
+```
+
+### Evidence Export
+The tool exports raw Slack configurations for compliance evidence:
+- User configurations
+- Workspace settings
+- App permissions
+- Audit logs (Enterprise Grid)
+- File sharing settings
+
+### Remediation Guidance
+Each finding includes:
+- Specific remediation steps
+- Effort estimation (Low/Medium/High)
+- Automation possibilities
+- Reference documentation
+
+## Architecture
+
+The tool uses a modular plugin architecture:
+
+```
+slack_security_audit/
+├── core.py                 # Main orchestrator
+├── config.py              # Configuration management
+├── models.py              # Data models
+├── slack_client.py        # Enhanced Slack API client
+├── analyzers/
+│   ├── cia_analyzer.py    # CIA impact analysis
+│   └── risk_scorer.py     # Risk calculation engine
+├── collectors/            # Data collection modules
+│   ├── workspace_collector.py
+│   ├── user_collector.py
+│   └── ...
+├── frameworks/           # Compliance frameworks
+│   ├── nist_800_53.py
+│   ├── cis.py
+│   └── ...
+└── reporters/           # Report generators
+    ├── json_reporter.py
+    ├── html_reporter.py
+    └── ...
+```
+
+## Development
+
+### Adding New Controls
+
+1. Extend the framework class:
+```python
+class MyFramework(ComplianceFramework):
+    def _load_controls(self):
+        return {
+            "CTRL-1": {
+                "title": "My Control",
+                "description": "Control description"
+            }
+        }
+```
+
+2. Implement assessment logic:
+```python
+async def _assess_ctrl_1(self, data, workspace_info):
+    # Assessment logic
+    return self.create_control_result(...)
+```
+
+### Adding New Collectors
+
+1. Create a collector class:
+```python
+class MyCollector(DataCollector):
+    async def collect(self):
+        # Collection logic
+        return data
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Authentication Error**: Ensure your token has all required scopes
+2. **Rate Limiting**: The tool implements automatic rate limiting
+3. **Enterprise Features**: Some checks require Enterprise Grid
+
+### Debug Mode
+```bash
+./slack_security_audit_cli.py --token $TOKEN --verbose
+```
+
+## Security Considerations
+
+- **Token Security**: Store tokens securely, use environment variables
+- **Data Privacy**: Message content scanning is disabled by default
+- **Report Security**: Audit reports contain sensitive configuration data
 
 ## License
 
-[MIT License](LICENSE)
+MIT License - see LICENSE file
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Submit a pull request
+
+## Support
+
+- GitHub Issues: Report bugs and feature requests
+- Documentation: See `/docs` for detailed guides
+- Slack Community: Join our security community
+
+## Roadmap
+
+- [ ] Continuous monitoring mode
+- [ ] Advanced DLP features
+- [ ] Behavioral analytics
+- [ ] SOAR integration
+- [ ] Machine learning risk scoring
