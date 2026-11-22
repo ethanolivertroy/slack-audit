@@ -1,5 +1,7 @@
 # Slack Security Audit Tool
 
+> **Project moved.** slack-audit has been integrated into [Open Control Tools](https://github.com/ethanolivertroy/open-ctrl-tools).
+
 A comprehensive security assessment platform for Slack workspaces that evaluates compliance with industry-wide security best practices, FedRAMP requirements, and NIST 800-53 controls with explicit CIA triad impact analysis.
 
 ## Features
